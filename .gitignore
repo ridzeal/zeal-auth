@@ -1,0 +1,5 @@
+vendor
+.env
+
+# Ignored Gin generated file for hot-reload
+gin-bin
