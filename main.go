@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Setup(e *echo.Echo) {
+func setup(e *echo.Echo) {
 	if err := db.InitDB(); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
@@ -25,7 +25,7 @@ func Setup(e *echo.Echo) {
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	e := echo.New()
-	Setup(e)
+	setup(e)
 	e.ServeHTTP(w, r)
 }
 
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	e := echo.New()
-	Setup(e)
+	setup(e)
 	s := http.Server{
 		Addr:    ":3000",
 		Handler: e,
