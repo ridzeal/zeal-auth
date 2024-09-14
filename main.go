@@ -20,6 +20,7 @@ func Setup(e *echo.Echo) {
 	e.Use(middleware.Recover())
 
 	e.POST("/login", handler.Login)
+	e.GET("/protected", handler.Protected)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
