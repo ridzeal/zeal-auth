@@ -10,7 +10,7 @@ This is a Minimal Viable Product (MVP) for a Single Sign-On (SSO) backend servic
 
 ## Project Structure
 
-```
+```bash
 sso-backend/
 ├── api/
 │   ├── login.go    # Handles user authentication
@@ -31,6 +31,10 @@ sso-backend/
 
 2. `/protected` (GET): A protected endpoint that requires a valid JWT token
    - Header: `Authorization: Bearer <token>`
+   - Response: JSON with `message` field
+
+3. `/register` (POST): Register new user with a new organization
+   - Request body: `organization_name`, `email`, `password` (json)
    - Response: JSON with `message` field
 
 ## Local Development
@@ -57,8 +61,6 @@ This project is configured for deployment on Vercel:
 
 ## Future Improvements
 
-- Implement proper user management with a database
-- Add password hashing
 - Implement refresh token functionality
 - Enhance error handling and logging
 - Add unit tests
