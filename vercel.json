@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/*.go", "use": "@vercel/go" }
-  ],
   "routes": [
-    { "src": "/login", "dest": "/api/login.go" },
-    { "src": "/protected", "dest": "/api/protected.go" }
-  ],
-  "env": {
-    "DATABASE_URL": "user=postgres.prtdeilujedjjotkneij password=OfFmZGs7fzBEXwEP host=aws-0-ap-southeast-1.pooler.supabase.com port=6543 dbname=postgres"
-  }
+    { "src": "/.*", "dest": "/main.go" }
+  ]
 }

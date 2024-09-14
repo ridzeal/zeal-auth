@@ -3,10 +3,30 @@ package main
 import (
 	"log"
 	"net/http"
-	"sso-backend/api"
+	"sso-backend/db"
+	"sso-backend/handler"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
+
+func Setup(e *echo.Echo) {
+	if err := db.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.POST("/login", handler.Login)
+}
+
+func Handler(w http.ResponseWriter, r *http.Request) {
+	e := echo.New()
+	Setup(e)
+	e.ServeHTTP(w, r)
+}
 
 func main() {
 	// Load environment variables from .env file
@@ -15,15 +35,16 @@ func main() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	// Set up the routes
-	http.HandleFunc("/login", api.Login)
-	http.HandleFunc("/register", api.Register)
-	http.HandleFunc("/activation", api.Activation)
-	http.HandleFunc("/protected", api.Protected)
-
+	e := echo.New()
+	Setup(e)
+	s := http.Server{
+		Addr:    ":3000",
+		Handler: e,
+		//ReadTimeout: 30 * time.Second, // customize http.Server timeouts
+	}
 	// Start the server
 	log.Println("Server starting on http://localhost:3000")
-	if err := http.ListenAndServe(":3000", nil); err != nil {
+	if err := s.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
