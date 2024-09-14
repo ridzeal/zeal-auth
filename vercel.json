@@ -1,10 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/*.go", "use": "@vercel/go" }
-  ],
   "routes": [
-    { "src": "/login", "dest": "/api/login.go" },
-    { "src": "/protected", "dest": "/api/protected.go" }
+    { "src": "/.*", "dest": "api/index.go" }
   ]
 }
