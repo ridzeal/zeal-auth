@@ -3,31 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
-	"sso-backend/db"
-	"sso-backend/handler"
+	"sso-backend/api"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
-
-func setup(e *echo.Echo) {
-	if err := db.InitDB(); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	e.POST("/login", handler.Login)
-	e.GET("/protected", handler.Protected)
-}
-
-func Handler(w http.ResponseWriter, r *http.Request) {
-	e := echo.New()
-	setup(e)
-	e.ServeHTTP(w, r)
-}
 
 func main() {
 	// Load environment variables from .env file
@@ -37,7 +17,7 @@ func main() {
 	}
 
 	e := echo.New()
-	setup(e)
+	api.Setup(e)
 	s := http.Server{
 		Addr:    ":3000",
 		Handler: e,
