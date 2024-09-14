@@ -19,6 +19,8 @@ func Setup(e *echo.Echo) {
 	e.Use(middleware.Recover())
 
 	e.POST("/login", handler.Login)
+	e.POST("/register", handler.Register)
+	e.POST("/activation", handler.Activation)
 	e.GET("/protected", handler.Protected)
 }
 

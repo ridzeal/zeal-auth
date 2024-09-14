@@ -21,7 +21,6 @@ func main() {
 	s := http.Server{
 		Addr:    ":3000",
 		Handler: e,
-		//ReadTimeout: 30 * time.Second, // customize http.Server timeouts
 	}
 	// Start the server
 	log.Println("Server starting on http://localhost:3000")

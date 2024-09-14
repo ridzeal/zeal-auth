@@ -2,11 +2,11 @@ package handler
 
 import (
 	"database/sql"
-	"encoding/json"
 	"log"
 	"net/http"
 	"sso-backend/db"
 
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,18 +16,16 @@ type RegistrationRequest struct {
 	Password         string `json:"password"`
 }
 
-func Register(w http.ResponseWriter, r *http.Request) {
+func Register(c echo.Context) error {
 	var req RegistrationRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+	if err := c.Bind(&req); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid request body")
 	}
 
 	// Start a transaction
 	tx, err := db.DB.Begin()
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Internal server error")
 	}
 	defer tx.Rollback()
 
@@ -39,8 +37,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
         RETURNING id
     `, req.OrganizationName).Scan(&orgID)
 	if err != nil {
-		http.Error(w, "Failed to create organization", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to create organization")
 	}
 
 	// Insert user
@@ -51,8 +48,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			RETURNING id
 	`, req.Email).Scan(&userID)
 	if err != nil {
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to create user")
 	}
 
 	// Link user to organization
@@ -62,21 +58,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	`, userID, orgID)
 	if err != nil {
 		log.Printf("tx.Exec Error: %s", err.Error())
-		http.Error(w, "Failed to link user to organization", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to link user to organization")
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to hash password")
 	}
 
 	// Get auth method id for password
 	authMethodID, err, errMessage := getAuthMethod(tx)
 	if err != nil {
-		http.Error(w, errMessage, http.StatusInternalServerError)
+		return c.String(http.StatusInternalServerError, errMessage)
 	}
 
 	// Insert user credentials
@@ -86,19 +80,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
     `, req.Email+"::"+string(hashedPassword), authMethodID, userID)
 	if err != nil {
 		log.Printf("[ERR] %s", err.Error())
-		http.Error(w, "Failed to store credentials", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to store credentials")
 	}
 
 	// Commit transaction
 	if err = tx.Commit(); err != nil {
-		http.Error(w, "Failed to complete registration", http.StatusInternalServerError)
-		return
+		return c.String(http.StatusInternalServerError, "Failed to complete registration")
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Registration successful"})
+	return c.JSON(http.StatusCreated, map[string]string{"message": "Registration successful"})
 }
 
 func getAuthMethod(tx *sql.Tx) (authMethodID int, err error, errMessage string) {

@@ -1,7 +1,11 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
 
-func Activation(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	"github.com/labstack/echo/v4"
+)
+
+func Activation(c echo.Context) error {
+	return c.JSON(http.StatusCreated, map[string]string{})
 }
