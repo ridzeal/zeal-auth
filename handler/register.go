@@ -1,11 +1,10 @@
-package api
+package handler
 
 import (
 	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
-	"sso-backend/api/validation"
 	"sso-backend/db"
 
 	"golang.org/x/crypto/bcrypt"
@@ -18,11 +17,6 @@ type RegistrationRequest struct {
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	err := validation.ValidateRequest(w, r)
-	if err != nil {
-		return
-	}
-
 	var req RegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
