@@ -1,70 +1,104 @@
 # SSO Backend Service
 
-This is a Minimal Viable Product (MVP) for a Single Sign-On (SSO) backend service implemented in Go. It's designed to be deployed on Vercel as a serverless application. This repo developed in tandem with Claude AI.
+This is a Minimal Viable Product (MVP) for a Single Sign-On (SSO) backend service implemented in Go. It's designed to be deployed on Vercel as a serverless application.
 
 ## Features
 
+- User registration with organization creation
 - User authentication (login endpoint)
 - JWT token generation and validation
+- Email-based authentication method
+- PostgreSQL database integration
 - Protected endpoint demonstration
+- User activation system
 
 ## Project Structure
 
 ```bash
 sso-backend/
 ├── api/
-│   ├── login.go    # Handles user authentication
-│   └── protected.go # Demonstrates a protected endpoint
+│   └── index.go        # API setup and route configuration
 ├── auth/
-│   └── auth.go     # JWT token generation and validation
-├── go.mod          # Go module file
-├── go.sum          # Go module checksums
-├── vercel.json     # Vercel configuration
-└── README.md       # This file
+│   └── auth.go         # JWT token generation and validation
+├── db/
+│   └── db.go          # Database connection and initialization
+├── handler/
+│   ├── activation.go   # User activation endpoint
+│   ├── login.go        # User authentication
+│   ├── protected.go    # Protected endpoint example
+│   └── register.go     # User and organization registration
+├── go.mod              # Go module file
+├── go.sum              # Go module checksums
+├── main.go             # Application entry point
+├── vercel.json         # Vercel configuration
+└── README.md           # This file
 ```
 
 ## Endpoints
 
 1. `/login` (POST): Authenticates a user and returns a JWT token
-   - Request body: `username` and `password` (form-data)
-   - Response: JSON with `token` field
+   - Request body: `email` and `password` (form-data)
+   - Response: JSON with `token` field or error message
 
-2. `/protected` (GET): A protected endpoint that requires a valid JWT token
+2. `/register` (POST): Register new user with a new organization
+   - Request body: `organization_name`, `email`, `password` (JSON)
+   - Response: JSON with success/error message
+
+3. `/activation` (POST): Activate user account
+   - Request body: TBD
+   - Response: JSON with status
+
+4. `/protected` (GET): A protected endpoint requiring valid JWT token
    - Header: `Authorization: Bearer <token>`
    - Response: JSON with `message` field
 
-3. `/register` (POST): Register new user with a new organization
-   - Request body: `organization_name`, `email`, `password` (json)
-   - Response: JSON with `message` field
+## Database Schema
+
+The service uses PostgreSQL with the following schema in the "z-auth" schema:
+- organizations
+- users
+- userorganizations
+- authmethods
+- usercredentials
 
 ## Local Development
 
 1. Ensure you have Go installed (version 1.20 or later recommended)
-2. Clone this repository
-3. Navigate to the project directory
-4. Run `go mod download` to install dependencies
-5. To test endpoints locally, you can use `go run api/login.go` and `go run api/protected.go` in separate terminal windows
+2. Install PostgreSQL and set up the database
+3. Clone this repository
+4. Create a `.env` file with your `DATABASE_URL`
+5. Run `go mod download` to install dependencies
+6. Execute `go run main.go` to start the server
+
+## Environment Variables
+
+- `DATABASE_URL`: PostgreSQL connection string
 
 ## Deployment
 
 This project is configured for deployment on Vercel:
 
 1. Install the Vercel CLI: `npm i -g vercel`
-2. Navigate to the project directory
+2. Configure your environment variables in Vercel
 3. Run `vercel` and follow the prompts
 
-## Security Notes
+## Security Features
 
-- This is a basic implementation for demonstration purposes. In a production environment, implement proper security measures.
-- The JWT secret is hardcoded in this example. Use environment variables for sensitive information in a real-world scenario.
-- The login credentials are hardcoded. Implement proper user management and password hashing for a production application.
+- Password hashing using bcrypt
+- JWT-based authentication
+- Database transaction support for data integrity
+- User activation system
+- Secure credential storage
 
 ## Future Improvements
 
 - Implement refresh token functionality
+- Add email verification system
 - Enhance error handling and logging
-- Add unit tests
-- Use environment variables for configuration
+- Add comprehensive unit tests
+- Implement rate limiting
+- Add organization management features
+- Enhance user activation flow
 
 ## Contributing
 
