@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -13,6 +14,13 @@ func GenerateToken(username string) (string, error) {
 	// Check for invalid characters first, before trimming
     if strings.Contains(username, "\n") || strings.Contains(username, "\r") {
         return "", fmt.Errorf("username contains invalid characters")
+    }
+    
+    // Check for control characters
+    for _, r := range username {
+        if unicode.IsControl(r) {
+            return "", fmt.Errorf("username contains invalid control characters")
+        }
     }
 
     // Check for potentially malicious content
